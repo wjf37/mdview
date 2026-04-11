@@ -37,8 +37,8 @@ async function init(): Promise<void> {
     if (dir) await navigateToBrowse(dir);
   });
 
-  document.getElementById('back-btn')!.addEventListener('click', () => {
-    navigateToBrowse(currentDir);
+  document.getElementById('back-btn')!.addEventListener('click', async () => {
+    await navigateToBrowse(currentDir);
   });
 
   if (info.cli_arg_file) {
