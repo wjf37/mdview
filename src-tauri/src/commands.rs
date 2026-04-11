@@ -11,6 +11,8 @@ pub struct StartupInfo {
     pub home_dir: String,
 }
 
+/// Lists all `.md` files in the given directory (non-recursive, top-level only).
+/// Returns full paths, sorted by filename.
 #[tauri::command]
 pub fn list_md_files(dir: String) -> Result<Vec<String>, String> {
     let path = Path::new(&dir);
@@ -24,7 +26,11 @@ pub fn list_md_files(dir: String) -> Result<Vec<String>, String> {
         .filter(|p| p.is_file() && p.extension().and_then(|e| e.to_str()) == Some("md"))
         .filter_map(|p| p.to_str().map(String::from))
         .collect();
-    files.sort();
+    files.sort_by(|a, b| {
+        let a_name = Path::new(a).file_name().unwrap_or_default();
+        let b_name = Path::new(b).file_name().unwrap_or_default();
+        a_name.cmp(b_name)
+    });
     Ok(files)
 }
 
@@ -34,11 +40,11 @@ pub fn read_file(path: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-pub fn get_startup_info(state: State<CliArgState>) -> StartupInfo {
-    let raw_arg = state.0.lock().unwrap().clone();
+pub fn get_startup_info(state: State<CliArgState>) -> Result<StartupInfo, String> {
+    let raw_arg = state.0.lock().map_err(|_| "state lock failed".to_string())?.clone();
     let home_dir = dirs::home_dir()
         .and_then(|p| p.to_str().map(String::from))
-        .unwrap_or_else(|| "/".to_string());
+        .unwrap_or_else(|| String::new());
 
     let (cli_arg_file, cli_arg_dir) = match raw_arg {
         None => (None, None),
@@ -54,7 +60,7 @@ pub fn get_startup_info(state: State<CliArgState>) -> StartupInfo {
         }
     };
 
-    StartupInfo { cli_arg_file, cli_arg_dir, home_dir }
+    Ok(StartupInfo { cli_arg_file, cli_arg_dir, home_dir })
 }
 
 #[cfg(test)]
