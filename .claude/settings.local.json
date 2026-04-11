@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(rustup --version)",
-      "Bash(cargo --version)",
-      "Bash(npm --version)"
-    ]
-  }
-}
