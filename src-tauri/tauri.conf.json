@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "mdview-scaffold",
+  "productName": "mdview",
   "version": "0.1.0",
   "identifier": "com.mdview.app",
   "build": {
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "mdview-scaffold",
+        "title": "mdview",
         "width": 800,
         "height": 600
       }
