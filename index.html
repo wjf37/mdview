@@ -1,43 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/src/styles.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/src/main.ts" defer></script>
+    <title>mdview</title>
   </head>
-
   <body>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
-
-      <div class="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/src/assets/vite.svg" class="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img
-            src="/src/assets/tauri.svg"
-            class="logo tauri"
-            alt="Tauri logo"
-          />
-        </a>
-        <a href="https://www.typescriptlang.org/docs" target="_blank">
-          <img
-            src="/src/assets/typescript.svg"
-            class="logo typescript"
-            alt="typescript logo"
-          />
-        </a>
+    <div id="browse-view" class="view">
+      <div class="view-header">
+        <h2 id="browse-dir-name" class="dir-name"></h2>
+        <button id="open-folder-btn" class="btn">Open Folder</button>
       </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
+      <div id="browse-error" class="error-message hidden"></div>
+      <p id="no-files-msg" class="empty-message hidden">No markdown files found.</p>
+      <ul id="file-list" class="file-list"></ul>
+    </div>
 
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
-    </main>
+    <div id="reader-view" class="view hidden">
+      <div class="view-header">
+        <button id="back-btn" class="btn">&#8592; Back</button>
+        <span id="reader-filename" class="filename"></span>
+      </div>
+      <div id="reader-error" class="error-message hidden"></div>
+      <article id="markdown-content" class="markdown-body"></article>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
