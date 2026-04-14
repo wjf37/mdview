@@ -13,7 +13,18 @@ A lightweight desktop markdown viewer built with Tauri. Open `.md` files with pr
 - Opens to the directory you launched from
 - Lightweight — ~13MB installed binary, no Electron
 
-## Prerequisites
+## Install from a release
+
+Download the latest pre-built binary from [GitHub Releases](../../releases):
+
+- **Linux** — `.deb` (Debian/Ubuntu) or `.AppImage` (any distro)
+- **Windows** — `.exe` installer or `.msi`
+
+> Windows binaries are unsigned. SmartScreen may show a warning on first run — click **More info → Run anyway**.
+
+## Build from source
+
+### Prerequisites
 
 - [Rust](https://rustup.rs/) (stable)
 - [Node.js](https://nodejs.org/) 18+
@@ -23,7 +34,7 @@ A lightweight desktop markdown viewer built with Tauri. Open `.md` files with pr
 sudo apt-get install -y pkg-config libwebkit2gtk-4.1-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
 ```
 
-## Install
+## Install (Linux)
 
 Build and install the binary to `~/.local/bin`:
 
@@ -34,7 +45,7 @@ npm run install:local
 
 If `~/.local/bin` is not on your PATH, the script will tell you what to add to your `~/.bashrc` or `~/.zshrc`.
 
-## Update
+## Update (Linux)
 
 Pull the latest changes and reinstall:
 

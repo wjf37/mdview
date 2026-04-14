@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux
+          - os: windows-latest
+            label: windows
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install Linux system dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            libwebkit2gtk-4.1-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - run: npm ci
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: mdview ${{ github.ref_name }}
+          releaseBody: |
+            ## Downloads
+
+            | Platform | File |
+            |----------|------|
+            | Linux (deb) | `mdview_VERSION_amd64.deb` |
+            | Linux (AppImage) | `mdview_VERSION_amd64.AppImage` |
+            | Windows (installer) | `mdview_VERSION_x64-setup.exe` |
+            | Windows (MSI) | `mdview_VERSION_x64_en-US.msi` |
+
+            > **Windows note:** The binary is unsigned — Windows SmartScreen may show a warning on first run. Click "More info → Run anyway" to proceed.
+          releaseDraft: true
+          prerelease: false
