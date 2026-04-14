@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "build:linux": "npm run tauri build",
-    "install:local": "npm run build:linux && bash scripts/install.sh"
+    "install:local": "npm run build:linux && bash scripts/install.sh",
+    "update": "git pull && npm run install:local"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",

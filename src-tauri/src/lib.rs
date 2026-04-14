@@ -15,8 +15,10 @@ pub fn run() {
         .manage(CliArgState(Mutex::new(user_arg)))
         .invoke_handler(tauri::generate_handler![
             commands::list_md_files,
+            commands::list_entries,
             commands::read_file,
             commands::get_startup_info,
+            commands::get_path_type,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

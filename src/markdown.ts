@@ -60,16 +60,26 @@ const marked = new Marked(
   })
 );
 
-// Disable HTML passthrough — discard raw HTML blocks for security
+const SAFE_PROTOCOLS = /^(https?:|mailto:|#)/i;
+
+// Disable HTML passthrough and strip dangerous link protocols
 marked.use({
   gfm: true,
   renderer: {
     html(): string {
       return '';
     },
+    link({ href, title, tokens }): string {
+      const text = (this as unknown as { parser: { parseInline: (t: typeof tokens) => string } }).parser.parseInline(tokens);
+      if (!href || !SAFE_PROTOCOLS.test(href)) {
+        return `<span title="${title ?? ''}">${text}</span>`;
+      }
+      const titleAttr = title ? ` title="${title}"` : '';
+      return `<a href="${href}"${titleAttr} rel="noopener noreferrer">${text}</a>`;
+    },
   },
 });
 
 export function renderMarkdown(source: string): string {
-  return marked.parse(source) as string;
+  return marked.parse(source, { async: false });
 }

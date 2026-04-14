@@ -2,6 +2,44 @@ use std::fs;
 use std::path::Path;
 use tauri::State;
 
+#[derive(serde::Serialize)]
+pub struct DirEntry {
+    pub path: String,
+    pub kind: String, // "file" or "directory"
+}
+
+/// Lists subdirectories and `.md` files in `dir` (non-recursive, top-level only).
+/// Directories come first, then files, each group sorted by name.
+#[tauri::command]
+pub fn list_entries(dir: String) -> Result<Vec<DirEntry>, String> {
+    let path = Path::new(&dir);
+    if !path.is_dir() {
+        return Err(format!("Not a directory: {}", dir));
+    }
+    let raw = fs::read_dir(path).map_err(|e| e.to_string())?;
+    let mut dirs: Vec<DirEntry> = Vec::new();
+    let mut files: Vec<DirEntry> = Vec::new();
+    for entry in raw.filter_map(|e| e.ok()) {
+        let p = entry.path();
+        let Some(path_str) = p.to_str().map(String::from) else { continue };
+        if p.is_dir() {
+            dirs.push(DirEntry { path: path_str, kind: "directory".to_string() });
+        } else if p.is_file() && p.extension().and_then(|e| e.to_str()) == Some("md") {
+            files.push(DirEntry { path: path_str, kind: "file".to_string() });
+        }
+    }
+    dirs.sort_by(|a, b| {
+        Path::new(&a.path).file_name().unwrap_or_default()
+            .cmp(Path::new(&b.path).file_name().unwrap_or_default())
+    });
+    files.sort_by(|a, b| {
+        Path::new(&a.path).file_name().unwrap_or_default()
+            .cmp(Path::new(&b.path).file_name().unwrap_or_default())
+    });
+    dirs.extend(files);
+    Ok(dirs)
+}
+
 pub struct CliArgState(pub std::sync::Mutex<Option<String>>);
 
 #[derive(serde::Serialize)]
@@ -9,6 +47,7 @@ pub struct StartupInfo {
     pub cli_arg_file: Option<String>,
     pub cli_arg_dir: Option<String>,
     pub home_dir: String,
+    pub cwd: String,
 }
 
 /// Lists all `.md` files in the given directory (non-recursive, top-level only).
@@ -34,8 +73,31 @@ pub fn list_md_files(dir: String) -> Result<Vec<String>, String> {
     Ok(files)
 }
 
+const MAX_FILE_BYTES: u64 = 10 * 1024 * 1024; // 10 MB
+
+/// Returns "file", "directory", or "not_found" for a given path.
+#[tauri::command]
+pub fn get_path_type(path: String) -> String {
+    let p = Path::new(&path);
+    if p.is_file() {
+        "file".to_string()
+    } else if p.is_dir() {
+        "directory".to_string()
+    } else {
+        "not_found".to_string()
+    }
+}
+
 #[tauri::command]
 pub fn read_file(path: String) -> Result<String, String> {
+    let p = Path::new(&path);
+    if p.extension().and_then(|e| e.to_str()) != Some("md") {
+        return Err("Only .md files can be read".to_string());
+    }
+    let meta = fs::metadata(&path).map_err(|e| e.to_string())?;
+    if meta.len() > MAX_FILE_BYTES {
+        return Err(format!("File exceeds the 10 MB size limit ({} bytes)", meta.len()));
+    }
     fs::read_to_string(&path).map_err(|e| e.to_string())
 }
 
@@ -60,7 +122,12 @@ pub fn get_startup_info(state: State<CliArgState>) -> Result<StartupInfo, String
         }
     };
 
-    Ok(StartupInfo { cli_arg_file, cli_arg_dir, home_dir })
+    let cwd = std::env::current_dir()
+        .ok()
+        .and_then(|p| p.to_str().map(String::from))
+        .unwrap_or_else(|| home_dir.clone());
+
+    Ok(StartupInfo { cli_arg_file, cli_arg_dir, home_dir, cwd })
 }
 
 #[cfg(test)]
@@ -119,5 +186,27 @@ mod tests {
     fn test_read_file_error_on_nonexistent_file() {
         let result = read_file("/nonexistent/file.md".to_string());
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_read_file_rejects_non_md_extension() {
+        let dir = TempDir::new().unwrap();
+        let file = dir.path().join("secret.txt");
+        fs::write(&file, "sensitive data").unwrap();
+        let result = read_file(file.to_str().unwrap().to_string());
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Only .md files"));
+    }
+
+    #[test]
+    fn test_read_file_rejects_oversized_file() {
+        let dir = TempDir::new().unwrap();
+        let file = dir.path().join("big.md");
+        // Write just over 10 MB
+        let big = vec![b'a'; 10 * 1024 * 1024 + 1];
+        fs::write(&file, &big).unwrap();
+        let result = read_file(file.to_str().unwrap().to_string());
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("size limit"));
     }
 }
