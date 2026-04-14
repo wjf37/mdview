@@ -1,14 +1,16 @@
 # mdview
 
-A lightweight desktop markdown viewer built with Tauri. Open `.md` files with proper formatting — tables, syntax-highlighted code blocks, task checkboxes, and automatic dark/light mode.
+A lightweight desktop markdown viewer built with Tauri. Open `.md` files with proper formatting — tables, syntax-highlighted code blocks, task checkboxes, and dark/light mode.
 
 ## Features
 
-- Browse a directory's markdown files and open them with a click
+- Browse a directory's markdown files and subdirectories, navigate into folders
 - Renders GitHub Flavored Markdown: headings, tables, task checkboxes, strikethrough, fenced code blocks
 - Syntax highlighting for 20+ languages via highlight.js
-- Automatic dark/light mode following OS preference
+- Dark/light mode toggle (persists across sessions); defaults to OS preference
+- Hidden files and folders filtered by default — right-click to show them
 - Open a file or directory directly from the command line
+- Opens to the directory you launched from
 - Lightweight — ~13MB installed binary, no Electron
 
 ## Prerequisites
@@ -32,13 +34,33 @@ npm run install:local
 
 If `~/.local/bin` is not on your PATH, the script will tell you what to add to your `~/.bashrc` or `~/.zshrc`.
 
+## Update
+
+Pull the latest changes and reinstall:
+
+```bash
+npm run update
+```
+
 ## Usage
 
 ```bash
-mdview                     # browse from home directory
-mdview ~/documents         # browse a specific directory
+mdview                       # browse from current directory
+mdview ~/documents           # browse a specific directory
 mdview ~/documents/notes.md  # open a file directly
 ```
+
+### Browse view
+
+- Click a folder to navigate into it
+- Click a `.md` file to open it in the reader
+- Click **Open** to pick any `.md` file or directory from a file dialog
+- Right-click anywhere in the browse view to toggle visibility of hidden files and folders
+
+### Reader view
+
+- Click **← Back** to return to the directory listing
+- The dark/light mode toggle sits in the bottom-right corner
 
 ## Development
 
