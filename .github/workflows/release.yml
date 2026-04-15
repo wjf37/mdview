@@ -48,9 +48,25 @@ jobs:
 
       - run: npm ci
 
+      # Write the PFX certificate to disk when the secret is present.
+      # To enable: add WINDOWS_CERTIFICATE (base64-encoded .pfx) and
+      # WINDOWS_CERTIFICATE_PASSWORD to your repository secrets.
+      - name: Decode Windows signing certificate
+        if: matrix.os == 'windows-latest' && env.WINDOWS_CERTIFICATE != ''
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+        shell: pwsh
+        run: |
+          $bytes = [System.Convert]::FromBase64String($env:WINDOWS_CERTIFICATE)
+          [System.IO.File]::WriteAllBytes("$env:RUNNER_TEMP\certificate.pfx", $bytes)
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Passed through to tauri-action when present so the MSI/NSIS
+          # bundles are signed. Leave unset to build unsigned.
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE != '' && format('{0}\\certificate.pfx', env.RUNNER_TEMP) || '' }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: mdview ${{ github.ref_name }}
@@ -64,6 +80,16 @@ jobs:
             | Windows (installer) | `mdview_VERSION_x64-setup.exe` |
             | Windows (MSI) | `mdview_VERSION_x64_en-US.msi` |
 
-            > **Windows note:** The binary is unsigned — Windows SmartScreen may show a warning on first run. Click "More info → Run anyway" to proceed.
+            > **Windows note:** The binary is unsigned — Windows SmartScreen may show a warning on first run. Click **More info → Run anyway** to proceed.
           releaseDraft: true
           prerelease: false
+
+      # Clean up certificate file after build
+      - name: Remove signing certificate
+        if: matrix.os == 'windows-latest' && env.WINDOWS_CERTIFICATE != '' && always()
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+        shell: pwsh
+        run: |
+          $cert = "$env:RUNNER_TEMP\certificate.pfx"
+          if (Test-Path $cert) { Remove-Item $cert -Force }
