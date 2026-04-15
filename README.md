@@ -24,17 +24,24 @@ Download the latest pre-built binary from [GitHub Releases](../../releases):
 
 ## Build from source
 
-### Prerequisites
+### Prerequisites — Linux
 
 - [Rust](https://rustup.rs/) (stable)
 - [Node.js](https://nodejs.org/) 18+
-- Linux system libraries for Tauri:
+- System libraries:
 
 ```bash
 sudo apt-get install -y pkg-config libwebkit2gtk-4.1-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
 ```
 
-## Install (Linux)
+### Prerequisites — Windows
+
+- [Rust](https://rustup.rs/) (stable) — choose the `x86_64-pc-windows-msvc` toolchain when prompted
+- [Node.js](https://nodejs.org/) 18+
+- [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) — select the **Desktop development with C++** workload
+- WebView2 Runtime — pre-installed on Windows 10 (1803+) and Windows 11
+
+### Install — Linux
 
 Build and install the binary to `~/.local/bin`:
 
@@ -45,12 +52,27 @@ npm run install:local
 
 If `~/.local/bin` is not on your PATH, the script will tell you what to add to your `~/.bashrc` or `~/.zshrc`.
 
-## Update (Linux)
+### Install — Windows
 
-Pull the latest changes and reinstall:
+Run the following in a PowerShell terminal from the project directory:
+
+```powershell
+npm install
+npm run install:windows
+```
+
+This builds the app and copies `mdview.exe` to `%LOCALAPPDATA%\Programs\mdview\`. If that directory isn't on your PATH, the script will print the exact command to add it. Run that command, then restart your terminal.
+
+### Update — Linux
 
 ```bash
 npm run update
+```
+
+### Update — Windows
+
+```powershell
+npm run update:windows
 ```
 
 ## Usage
@@ -83,13 +105,15 @@ npm run tauri dev
 
 ## Building
 
-Build an optimised release binary (also produces `.deb`, `.rpm`, and `.AppImage` bundles):
-
 ```bash
+# Linux
 npm run build:linux
-```
+# Output: src-tauri/target/release/mdview
 
-Output: `src-tauri/target/release/mdview`
+# Windows
+npm run build:windows
+# Output: src-tauri/target/release/mdview.exe
+```
 
 ## Tech Stack
 

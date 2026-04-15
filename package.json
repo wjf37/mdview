@@ -11,7 +11,9 @@
     "build:linux": "npm run tauri build",
     "build:windows": "npm run tauri build",
     "install:local": "npm run build:linux && bash scripts/install.sh",
-    "update": "git pull && npm run install:local"
+    "install:windows": "npm run build:windows && powershell -ExecutionPolicy Bypass -File scripts/install.ps1",
+    "update": "git pull && npm run install:local",
+    "update:windows": "git pull && npm run install:windows"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
