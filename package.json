@@ -13,7 +13,8 @@
     "install:local": "npm run build:linux && bash scripts/install.sh",
     "install:windows": "npm run build:windows && powershell -ExecutionPolicy Bypass -File scripts/install.ps1",
     "update": "git pull && npm run install:local",
-    "update:windows": "git pull && npm run install:windows"
+    "update:windows": "git pull && npm run install:windows",
+    "set-version": "node scripts/set-version.cjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
