@@ -27,7 +27,7 @@ Download the latest pre-built binary from [GitHub Releases](../../releases):
 ### Prerequisites — Linux
 
 - [Rust](https://rustup.rs/) (stable)
-- [Node.js](https://nodejs.org/) 18+
+- [Node.js](https://nodejs.org/) 24+
 - System libraries:
 
 ```bash
@@ -37,7 +37,7 @@ sudo apt-get install -y pkg-config libwebkit2gtk-4.1-dev libssl-dev libayatana-a
 ### Prerequisites — Windows
 
 - [Rust](https://rustup.rs/) (stable) — choose the `x86_64-pc-windows-msvc` toolchain when prompted
-- [Node.js](https://nodejs.org/) 18+
+- [Node.js](https://nodejs.org/) 24+
 - [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) — select the **Desktop development with C++** workload
 - WebView2 Runtime — pre-installed on Windows 10 (1803+) and Windows 11
 
