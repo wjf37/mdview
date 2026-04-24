@@ -18,9 +18,9 @@ A lightweight desktop markdown viewer built with Tauri. Open `.md` files with pr
 Download the latest pre-built binary from [GitHub Releases](../../releases):
 
 - **Linux** — `.deb` (Debian/Ubuntu) or `.AppImage` (any distro)
-- **Windows** — `.exe` installer or `.msi`
+- **Windows** — portable `.exe` (recommended) or `.msi` installer
 
-> Windows binaries are unsigned. SmartScreen may show a warning on first run — click **More info → Run anyway**.
+**Windows note:** The binaries are unsigned. If Windows Defender quarantines the file, prefer the portable `.exe` over the `.msi` — it avoids the installer heuristics that commonly trigger false positives. If Defender still blocks it, add an exclusion for your Downloads folder or [submit a false positive report](https://www.microsoft.com/en-us/wdsi/filesubmission).
 
 ## Build from source
 
